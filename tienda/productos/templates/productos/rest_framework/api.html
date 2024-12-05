@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Venta</title>
+</head>
+<body>
+    <h2>Registrar Venta</h2>
+
+    <!-- Formulario para registrar la venta -->
+    <form id="ventaForm">
+        {% csrf_token %}
+
+        <!-- Campo para ingresar el código de barras (con escáner o manual) -->
+        <div>
+            <label for="codigo_barras">Código de barras</label>
+            <input type="text" id="codigo_barras" name="codigo_barras" placeholder="Escanea el código de barras o ingrésalo manualmente" required autofocus>
+        </div>
+
+        <!-- Campo para ingresar la cantidad (opcional) -->
+        <div>
+            <label for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" value="1" min="1" required>
+        </div>
+
+        <!-- Botón para registrar la venta -->
+        <button type="submit">Registrar Venta</button>
+    </form>
+
+    <!-- Área para mostrar mensajes de éxito o error -->
+    <div id="mensaje" style="margin-top: 20px;"></div>
+
+    <script>
+        const form = document.getElementById('ventaForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();  // Evita que el formulario se envíe de forma tradicional
+
+            // Obtener los valores del formulario
+            const codigo_barras = document.getElementById('codigo_barras').value;
+            const cantidad = document.getElementById('cantidad').value;
+
+            // Limpiar el área de mensaje
+            document.getElementById('mensaje').innerHTML = '';
+
+            try {
+                // Enviar los datos a la API
+                const response = await fetch('/api/registrar-venta/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ codigo_barras, cantidad })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Si la venta se registra correctamente
+                    document.getElementById('mensaje').innerHTML = `<p style="color: green;">Venta registrada: ${data.mensaje}</p>`;
+                } else {
+                    // Si ocurre un error (por ejemplo, producto no encontrado o stock insuficiente)
+                    document.getElementById('mensaje').innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error("Error en la solicitud:", error);
+                document.getElementById('mensaje').innerHTML = "<p style='color: red;'>Hubo un problema con la solicitud.</p>";
+            }
+        });
+    </script>
+
+</body>
+</html>

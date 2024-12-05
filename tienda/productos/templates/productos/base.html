@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Tienda{% endblock %}</title>
+    
+    <!-- Vincula tu archivo CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <!-- Si necesitas incluir fuentes o íconos, lo puedes hacer aquí -->
+    <!-- Ejemplo: -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+</head>
+<body>
+    <!-- Cabecera común -->
+    <header>
+        <h1>Bienvenidos a Mi Tienda</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Inicio</a></li>
+                <li><a href="{% url 'registrar_venta' %}">Registrar Venta</a></li>
+                <!-- Agrega más enlaces aquí según sea necesario -->
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main>
+        {% block content %}
+        <!-- El contenido específico de cada página se insertará aquí -->
+        {% endblock %}
+    </main>
+
+    <!-- Pie de página común -->
+    <footer>
+        <p>&copy; 2024 Mi Tienda. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Vincula tu archivo JS -->
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

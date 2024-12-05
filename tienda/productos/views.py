@@ -1,29 +1,46 @@
-from .models import*
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Producto, Venta, DetalleVenta
 
 class RegistrarVenta(APIView):
     def post(self, request):
         data = request.data
         codigo_barras = data.get('codigo_barras')
-        cantidad = data.get('cantidad', 1)
+        cantidad = int(data.get('cantidad', 1))  # Convierte a entero
 
         try:
+            # Buscar el producto por el código de barras
             producto = Producto.objects.get(codigo_barras=codigo_barras)
 
-            if producto.stock < int(cantidad):
+            # Verificar si hay suficiente stock
+            if producto.stock < cantidad:
                 return Response(
                     {"error": "Stock insuficiente para realizar la venta."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            venta = Venta.objects.create(
+            # Crear la venta
+            venta = Venta.objects.create()
+
+            # Crear el detalle de la venta y descontar del stock
+            detalle = DetalleVenta.objects.create(
+                venta=venta,
                 producto=producto,
                 cantidad=cantidad,
+                total=producto.precio_venta * cantidad
             )
+
+            # Actualizar el stock del producto
+            producto.stock -= cantidad
+            producto.save()
+
             return Response(
-                {"mensaje": f"Venta registrada: {venta.cantidad}x {venta.producto.nombre}. Stock restante: {producto.producto.stock}."},
+                {
+                    "mensaje": f"Venta registrada: {detalle.cantidad}x {detalle.producto.nombre}. Stock restante: {producto.stock}.",
+                    "venta_id": venta.id
+                },
                 status=status.HTTP_201_CREATED
             )
 
